@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { supabase } from '../lib/supabaseClient.js';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -13,15 +14,17 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
 
-    // API çağrısını simüle et
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
 
-    if (email !== 'test@matota.com' || password !== '12345') {
-      setError('E-posta veya şifre hatalı.');
+    if (error) {
+      setError(error.message);
     } else {
-      // Başarılı giriş - şimdilik konsola yazdır
-      console.log('Giriş başarılı!');
-      alert('Giriş başarılı! (Bu mesaj daha sonra yönlendirme ile değiştirilecek)');
+      // Başarılı giriş! Şimdilik bir uyarı gösteriyoruz.
+      // Bir sonraki adımda kullanıcıyı ana panele yönlendireceğiz.
+      alert('Giriş başarılı!');
     }
 
     setIsLoading(false);
