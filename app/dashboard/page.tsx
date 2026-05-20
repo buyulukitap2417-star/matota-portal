@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabaseClient";
+import { cookies } from 'next/headers';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface StatCardProps {
   title: string;
@@ -28,27 +29,43 @@ function StatCard({ title, value, icon, iconContainerClass, bgIconClass }: StatC
 }
 
 export default async function DashboardPage() {
-  // Verileri Supabase'den çek
-  const { count: studentCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'student');
-  
-  // Diğer veriler için de benzer sorgular (şimdilik 0)
-  const pendingQuestionsCount = 0;
-  const newSubmissionsCount = 0;
+  const supabase = createServerComponentClient({ cookies });
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let stats = { studentCount: 0, questionCount: 0, submissionCount: 0 };
+
+  if (user) {
+    // Verileri Supabase'den paralel olarak çek
+    const [studentRes, questionRes, submissionRes] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student').eq('teacher_id', user.id),
+      supabase.from('questions').select('*', { count: 'exact', head: true }).eq('teacher_id', user.id).eq('status', 'active'),
+      // Not: Bu sorgu, ödev tablonuzda 'is_checked' gibi bir sütun olduğunu varsayar.
+      supabase.from('homework_submissions').select('*, homeworks!inner(teacher_id)', { count: 'exact', head: true }).eq('homeworks.teacher_id', user.id).eq('is_checked', false)
+    ]);
+
+    stats = {
+      studentCount: studentRes.count ?? 0,
+      questionCount: questionRes.count ?? 0,
+      submissionCount: submissionRes.count ?? 0,
+    };
+  }
+
+  const welcomeName = user?.user_metadata?.full_name?.split(' ')[0] || 'Eğitmen';
 
   return (
     <div>
-      <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-        Yönetim Özeti
-      </h1>
-      <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">Panele hoş geldiniz. İşte sistemin anlık durumu.</p>
+      <div className="mb-8">
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          Merhaba, {welcomeName} <span className="inline-block origin-[70%_70%] animate-wave">👋</span>
+        </h1>
+        <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">Platformun anlık analizleri emrinize amade.</p>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <StatCard title="Kayıtlı Öğrenci" value={studentCount ?? 0} icon="fa-user-graduate" iconContainerClass="bg-gradient-to-br from-orange-400 to-orange-600" bgIconClass="text-orange-500" />
-        <StatCard title="Cevap Bekleyen Soru" value={pendingQuestionsCount} icon="fa-clipboard-question" iconContainerClass="bg-gradient-to-br from-red-400 to-red-600" bgIconClass="text-red-500" />
-        <StatCard title="Yeni Ödev Teslimi" value={newSubmissionsCount} icon="fa-book" iconContainerClass="bg-gradient-to-br from-blue-400 to-blue-600" bgIconClass="text-blue-500" />
+        <StatCard title="Kayıtlı Öğrenci" value={stats.studentCount} icon="fa-user-graduate" iconContainerClass="bg-gradient-to-br from-orange-400 to-orange-600" bgIconClass="text-orange-500" />
+        <StatCard title="Cevap Bekleyen Soru" value={stats.questionCount} icon="fa-clipboard-question" iconContainerClass="bg-gradient-to-br from-red-400 to-red-600" bgIconClass="text-red-500" />
+        <StatCard title="Yeni Ödev Teslimi" value={stats.submissionCount} icon="fa-book" iconContainerClass="bg-gradient-to-br from-blue-400 to-blue-600" bgIconClass="text-blue-500" />
       </div>
     </div>
   );

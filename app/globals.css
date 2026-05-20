@@ -62,3 +62,7 @@ body {
 .sidebar-link-active {
   @apply bg-brand-orange text-white shadow-lg shadow-orange-500/30;
 }
+
+.sidebar-link-active {
+  @apply bg-brand-orange text-white shadow-lg shadow-orange-500/30;
+}
