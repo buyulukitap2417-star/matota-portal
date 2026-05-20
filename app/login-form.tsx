@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabaseClient.js';
 
 export function LoginForm() {
@@ -8,6 +9,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,9 +24,8 @@ export function LoginForm() {
     if (error) {
       setError(error.message);
     } else {
-      // Başarılı giriş! Şimdilik bir uyarı gösteriyoruz.
-      // Bir sonraki adımda kullanıcıyı ana panele yönlendireceğiz.
-      alert('Giriş başarılı!');
+      // Başarılı giriş! Kullanıcıyı ana panele yönlendir.
+      router.push('/dashboard');
     }
 
     setIsLoading(false);
