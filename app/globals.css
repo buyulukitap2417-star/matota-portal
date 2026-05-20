@@ -58,3 +58,7 @@ body {
     0% { transform: translate(0, 0) scale(1); } 
     100% { transform: translate(50px, 50px) scale(1.2); } 
 }
+
+.sidebar-link-active {
+  @apply bg-brand-orange text-white shadow-lg shadow-orange-500/30;
+}

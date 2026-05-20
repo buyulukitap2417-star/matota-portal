@@ -1,10 +1,12 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 
 export function Sidebar() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -13,9 +15,9 @@ export function Sidebar() {
 
   // Şimdilik statik menü öğeleri
   const navItems = [
-    { id: 'dashboard', name: 'Yönetim Özeti', icon: 'fa-chart-line' },
-    { id: 'students', name: 'Öğrenciler', icon: 'fa-user-graduate' },
-    { id: 'lessons', name: 'Ders Takvimi', icon: 'fa-calendar-days' },
+    { href: '/dashboard', name: 'Yönetim Özeti', icon: 'fa-chart-line' },
+    { href: '/dashboard/students', name: 'Öğrenciler', icon: 'fa-user-graduate' },
+    { href: '/dashboard/lessons', name: 'Ders Takvimi', icon: 'fa-calendar-days' },
   ];
 
   return (
@@ -26,13 +28,16 @@ export function Sidebar() {
 
       <nav className="flex-1 px-4 space-y-2">
         {navItems.map(item => (
-          <button
-            key={item.id}
-            className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition hover:bg-white/30 dark:hover:bg-white/10"
+          <Link
+            key={item.name}
+            href={item.href}
+            className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition hover:bg-white/30 dark:hover:bg-white/10 ${
+              pathname === item.href ? 'sidebar-link-active' : ''
+            }`}
           >
             <i className={`fa-solid ${item.icon} text-lg w-6 text-center`}></i>
             <span>{item.name}</span>
-          </button>
+          </Link>
         ))}
       </nav>
 
