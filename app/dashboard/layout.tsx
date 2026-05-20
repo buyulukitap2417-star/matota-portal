@@ -1,4 +1,4 @@
-import { Sidebar } from '../ui/sidebar';
+import { Sidebar } from './sidebar';
 
 export default function DashboardLayout({
   children,
