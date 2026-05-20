@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@theme {
+  --color-darkBg: #0f172a;
+  --color-darkCard: #1e293b;
+  --color-brand-blue: #2563eb;
+  --color-brand-orange: #ea580c;
+
+  --animation-wave: wave 2s infinite;
+
+  @keyframes wave {
+    '0%': { transform: 'rotate(0.0deg)' },
+    '10%': { transform: 'rotate(14.0deg)' },
+    '20%': { transform: 'rotate(-8.0deg)' },
+    '30%': { transform: 'rotate(14.0deg)' },
+    '40%': { transform: 'rotate(-4.0deg)' },
+    '50%': { transform: 'rotate(10.0deg)' },
+    '60%, 100%': { transform: 'rotate(0.0deg)' }
+  }
+}
+
 body { 
     font-family: sans-serif; /* Bu daha sonra font ile güncellenecek */
     transition: background-color 0.5s ease; 
